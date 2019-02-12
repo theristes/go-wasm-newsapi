@@ -1,6 +1,6 @@
 # Go-wasm-newsapi
 
-This is a GO app using wasm and consuming the REST API NewsApi.org
+This is a GO app using Webassembly and consuming the REST API NewsApi.org
 
 
 Hosting on firebase
