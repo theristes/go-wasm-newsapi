@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -34,118 +35,62 @@ type News struct {
 }
 
 func search(i []js.Value) {
-	go buildPage()
+	go designingData(js.Global().Get("document").Call("getElementById", "basic-search").Get("value").String())
 }
 
 func main() {
-	buildPage()
+	designingData("news")
 	c1 := make(chan struct{}, 0)
 	js.Global().Set("search", js.NewCallback(search))
 	<-c1
 }
 
-func buildPage() {
-	query := js.Global().Get("document").Call("getElementById", "basic-search").Get("value").String()
-	if len(query) > 3 {
-		println(query)
+func formatDurationTime(publishedAt time.Time) string {
+	return fmt.Sprintf("%d", int(time.Now().Sub(publishedAt).Minutes())) + "m ago"
+}
 
-		divSearchData := dom.GetDocument().GetElementById("search-data")
-		divSearchData.SetInnerHTML("")
-
-		divHeader := dom.Doc.CreateElement("div")
-		divHeader.SetClassName("col-4")
-		divListGroup := dom.Doc.CreateElement("div")
-		divListGroup.SetClassName("list-group")
-		divListGroup.SetAttribute("role", "tablist")
-
-		divTabHeader := dom.Doc.CreateElement("div")
-		divTabHeader.SetClassName("col-8")
-		divTabListGroup := dom.Doc.CreateElement("div")
-		divTabListGroup.SetClassName("tab-content")
-		divTabListGroup.SetId("nav-tabContent")
-		divTabListGroup.SetAttribute("role", "tablist")
-
-		for index, item := range getData(query).Articles {
-			strtIndex := strconv.Itoa(index)
-			a := dom.Doc.CreateElement("a")
-			if index == 0 {
-				a.SetClassName("list-group-item list-group-item-action active")
-			} else {
-				a.SetClassName("list-group-item list-group-item-action")
-			}
-
-			a.SetId("list-" + strtIndex + "-list")
-			a.SetAttribute("data-toggle", "list")
-
-			a.SetAttribute("href", "#list-"+strtIndex)
-			a.SetAttribute("role", "tab")
-			a.SetAttribute("aria-controls", "home")
-			a.SetInnerHTML(item.Title)
-			divListGroup.AppendChild(a)
-
-			div := dom.Doc.CreateElement("div")
-			if index == 0 {
-				div.SetClassName("tab-pane fade show active")
-			} else {
-				div.SetClassName("tab-pane fade")
-			}
-			div.SetId("list-" + strtIndex)
-			div.SetAttribute("role", "tabpanel")
-			div.SetAttribute("aria-labelledby", "list-home-list")
-
-			divCardMb3 := dom.Doc.CreateElement("div")
-			divCardMb3.SetClassName("card mb-3")
-
-			imgCardTop := dom.Doc.CreateElement("img")
-			imgCardTop.SetAttribute("src", item.URLToImage)
-
-			divCardBody := dom.Doc.CreateElement("div")
-			divCardBody.SetClassName("card-body")
-
-			h5cardTitle := dom.Doc.CreateElement("h5")
-			h5cardTitle.SetClassName("card-title")
-			h5cardTitle.SetInnerHTML(item.Title)
-
-			pCardText := dom.Doc.CreateElement("p")
-			pCardText.SetClassName("card-text")
-			pCardText.SetInnerHTML(item.Content)
-
-			pCardTextForSmall := dom.Doc.CreateElement("p")
-			pCardTextForSmall.SetClassName("card-text")
-
-			smallTextMuthed := dom.Doc.CreateElement("small")
-			smallTextMuthed.SetClassName("text-muted")
-			smallTextMuthed.SetInnerHTML(item.PublishedAt.Format("01-02-2006") + " - " + item.Author)
-
-			aPrimary := dom.Doc.CreateElement("a")
-			aPrimary.SetClassName("btn btn-primary")
-			aPrimary.SetAttribute("href", item.URL)
-			aPrimary.SetInnerHTML("Read More in " + item.Source.Name)
-
-			divCardMb3.AppendChild(imgCardTop)
-			div.AppendChild(divCardMb3)
-
-			divCardBody.AppendChild(h5cardTitle)
-			divCardBody.AppendChild(pCardText)
-			divCardBody.AppendChild(pCardTextForSmall)
-			divCardBody.AppendChild(aPrimary)
-			divCardMb3.AppendChild(divCardBody)
-
-			divTabListGroup.AppendChild(div)
-
-		}
-
-		divHeader.AppendChild(divListGroup)
-		divSearchData.AppendChild(divHeader)
-
-		divTabHeader.AppendChild(divTabListGroup)
-		divSearchData.AppendChild(divTabHeader)
+func designingData(query string) {
+	if len(query) <= 3 {
+		return
+	}
+	divSearchData := dom.GetDocument().GetElementById("search-data").SetInnerHTML("")
+	for i, item := range getData(query).Articles {
+		strI := strconv.Itoa(i)
+		divSearchData.
+			AddChild(dom.Doc.CreateElement("div").SetClassName("list-group").
+				AddChild(dom.Doc.CreateElement("a").SetClassName("list-group-item list-group-item-action").
+					SetAttribute("data-toggle", "modal").SetAttribute("data-target", "#modal"+strI).
+					AddChild(dom.Doc.CreateElement("div").SetClassName("d-flex w-100 justify-content-between").
+						AddChild(dom.Doc.CreateElement("h5").SetClassName("mb-1 mr-4 text-truncate").SetInnerHTML(item.Title)).
+						AddChild(dom.Doc.CreateElement("small").SetInnerHTML(formatDurationTime(item.PublishedAt)))).
+					AddChild(dom.Doc.CreateElement("p").SetClassName("mb-1").SetInnerHTML(item.Description)).
+					AddChild(dom.Doc.CreateElement("small").SetClassName("text-muted").SetInnerHTML(item.Source.Name)))).
+			AddChild(dom.Doc.CreateElement("div").SetClassName("modal fade").SetId("modal"+strI).SetAttribute("tabindex", "-1").SetAttribute("role", "dialog").
+				SetAttribute("aria-labelledby", "#modal"+strI).SetAttribute("aria-hidden", "true").
+				AddChild(dom.Doc.CreateElement("div").SetClassName("modal-dialog").SetAttribute("role", "document").
+					AddChild(dom.Doc.CreateElement("div").SetClassName("modal-content").
+						AddChild(dom.Doc.CreateElement("div").SetClassName("modal-header").
+							AddChild(dom.Doc.CreateElement("h5").SetClassName("modal-title text-truncate").SetInnerHTML(item.Source.Name)).
+							AddChild(dom.Doc.CreateElement("button").SetClassName("close").SetAttribute("type", "button").SetAttribute("data-dismiss", "modal").SetAttribute("aria-label", "Close").
+								AddChild(dom.Doc.CreateElement("span").SetAttribute("aria-hidden", "true").SetInnerHTML("&times;")))).
+						AddChild(dom.Doc.CreateElement("div").SetClassName("modal-body card").
+							AddChild(dom.Doc.CreateElement("img").SetClassName("card-img-top").SetAttribute("src", item.URLToImage)).
+							AddChild(dom.Doc.CreateElement("div").SetClassName("card-body").
+								AddChild(dom.Doc.CreateElement("h5").SetClassName("card-title").SetInnerHTML(item.Title)).
+								AddChild(dom.Doc.CreateElement("p").SetClassName("card-text").SetInnerHTML(item.Description)).
+								AddChild(dom.Doc.CreateElement("footer").SetClassName("footer text-muted float-right").SetInnerHTML(item.PublishedAt.Format("01-02-2006")))).
+							AddChild(dom.Doc.CreateElement("ul").SetClassName("list-group list-group-flush").
+								AddChild(dom.Doc.CreateElement("li").SetClassName("list-group-item").SetInnerHTML("<b>Author: </b>" + item.Author)).
+								AddChild(dom.Doc.CreateElement("li").SetClassName("list-group-item").SetInnerHTML("<b>Source: </b>" + item.Source.Name))).
+							AddChild(dom.Doc.CreateElement("div").SetClassName("card-body").
+								AddChild(dom.Doc.CreateElement("a").SetClassName("btn btn-primary btn-sm active float-right").
+									SetAttribute("href", item.URL).SetAttribute("role", "button").SetAttribute("aria-pressed", "true").SetInnerHTML("Check the full article")))))))
 	}
 
 }
 
 func getData(query string) News {
-	key := "f12ac86c7e2f44679ca6a11acf894116"
+	key := "<<API KEY>>"
 	query = strings.Trim(query, "")
 	dt := time.Now()
 
@@ -156,7 +101,6 @@ func getData(query string) News {
 	println(url)
 
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("cache-control", "no-cache")
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()

@@ -33,34 +33,18 @@ license that can be found in the LICENSE file.
 			inst = await WebAssembly.instantiate(mod, go.importObject);
 		});
 	</script>
-	<style>
-	.selector-for-some-widget {
-	box-sizing: content-box;
-	}
-	.vertical-align-middle { 
-    vertical-align: middle; 
-	}
-
-	.padding-bottom-3 {
-		padding-bottom: 3px;
-	}
-	</style>
 </head>
-	<body>
-		<div class="row">
-			<label for="basic-url"> Go ahead and search on newsapi.org (ex: bitcoins, apple, orange juice)  <i class="material-icons vertical-align-middle padding-bottom-3">search </i></label>
-			<div class="input-group mb-3">
-					<input type="search" value="bitcoins"
-					 class="form-control" 
-					 id="basic-search" aria-describedby="basic-addon3">
-					<button type="button" onclick="search()" class="btn btn-dark ">
-					 <i>search </i></button>
-			</div>
-		</div>
-		<div id="search-data" class="row">
-				
-		</div>
-	</body>
+<body>            
+	<nav class="navbar navbar-light bg-dark">
+		<span class="navbar-text text-light">A Search for News API </span>
+		<a class="float-right text-light" href="https://newsapi.org/"> <u>newsapi.org</u></a>
+	</nav>
+	<input type="search" class="form-control ds-input" onkeyup="search()" id="basic-search" placeholder="Search worldwide news (ex: bitcoins, apple, orange juice)" autocomplete="off" data-docs-version="4.3" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" dir="auto" style="position: relative; vertical-align: top;">   
+
+	<div id="search-data">
+			
+	</div>
+</body>
 
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
