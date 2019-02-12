@@ -7,6 +7,10 @@ Hosting on firebase
 ------
 https://go-wasm-news-api.firebaseapp.com
 
+Screens
+------------
+<img src="https://github.com/theristes/go-wasm-newsapi/blob/master/20190212_170235.gif">
+
 
 Quickstart
 ------
