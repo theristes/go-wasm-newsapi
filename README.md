@@ -32,11 +32,13 @@ GOARCH=wasm GOOS=js go build -o main.wasm main.go build -o main.wasm main.go
 Datasource
 ------
 newsapi.org - (News API - A JSON API for live news and blog articles)
+(https://www.newsapi.org)
 
 
 libs
 ------
 (Bootstrap) - https://getbootstrap.com/ 
+
 (dennwc/dom) -  https://github.com/dennwc/dom
 
 
