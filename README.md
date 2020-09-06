@@ -28,7 +28,7 @@ Open the terminal and run:
 
 Update the wasm
 ------
-To update the file main.wasm following any changes in main.go, run it:
+In order to update the file main.wasm because of a possible changes in main.go, run it:
 
 GOARCH=wasm GOOS=js go build -o main.wasm main.go build -o main.wasm main.go     
 
